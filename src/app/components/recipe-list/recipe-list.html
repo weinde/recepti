@@ -1,0 +1,41 @@
+<h1>Recipes</h1>
+
+@if (recipeService.loading()) {
+  <div class="center">
+    <p-progressSpinner ariaLabel="Loading recipes"/>
+  </div>
+} @else if (recipeService.error(); as err) {
+  <p-message severity="error" [text]="err"/>
+} @else {
+  <div class="recipe-grid">
+    @for (recipe of recipeService.recipes(); track recipe.documentId) {
+      <p-card [header]="recipe.title" [subheader]="recipe.category?.name">
+        @if (recipe.image) {
+          <img
+            [src]="strapiUrl + recipe.image.url"
+            [alt]="recipe.title"
+            class="recipe-img"
+          />
+        }
+
+        <p class="desc">{{ recipe.description }}</p>
+
+        <div class="meta">
+          <span>⏱ Prep {{ recipe.prepTime }}m</span>
+          <span>🔥 Cook {{ recipe.cookTime }}m</span>
+          <span>🍽 Serves {{ recipe.servings }}</span>
+        </div>
+
+        @if (recipe.ingredients?.length) {
+          <ul class="ingredients">
+            @for (ing of recipe.ingredients; track ing.name) {
+              <li>{{ ing.amount }} {{ ing.unit }} {{ ing.name }}</li>
+            }
+          </ul>
+        }
+      </p-card>
+    } @empty {
+      <p>No recipes yet.</p>
+    }
+  </div>
+}
