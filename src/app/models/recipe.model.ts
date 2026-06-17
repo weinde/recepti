@@ -42,3 +42,15 @@ export interface Recipe {
   category?: Category;
   ingredients?: Ingredient[];
 }
+
+export interface RecipeCreatePayload {
+  title: string;
+  slug: string;
+  description?: string;
+  instructions?: string;
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
+  ingredients?: Ingredient[];
+  category?: string; // documentId for the relation
+}

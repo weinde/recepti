@@ -1,0 +1,95 @@
+<h1>New Recipe</h1>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="recipe-form">
+  <div class="field">
+    <label for="title">Title</label>
+    <input pInputText id="title" formControlName="title" />
+    @if (form.controls.title.invalid && form.controls.title.touched) {
+      <small class="error">Title is required (min 3 characters).</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="description">Description</label>
+    <textarea pTextarea id="description" formControlName="description" rows="2"></textarea>
+  </div>
+
+  <div class="field">
+    <label for="instructions">Instructions</label>
+    <textarea pTextarea id="instructions" formControlName="instructions" rows="4"></textarea>
+  </div>
+
+  <div class="field">
+    <label for="category">Category</label>
+    <p-autoComplete
+      inputId="category"
+      formControlName="category"
+      [suggestions]="categorySuggestions()"
+      (completeMethod)="filterCategories($event)"
+      optionLabel="name"
+      [dropdown]="true"
+      placeholder="Select or type a new category"
+    />
+    <small class="hint">Pick an existing category or type a new name to create it.</small>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="prepTime">Prep (min)</label>
+      <p-inputNumber inputId="prepTime" formControlName="prepTime" />
+    </div>
+    <div class="field">
+      <label for="cookTime">Cook (min)</label>
+      <p-inputNumber inputId="cookTime" formControlName="cookTime" />
+    </div>
+    <div class="field">
+      <label for="servings">Servings</label>
+      <p-inputNumber inputId="servings" formControlName="servings" />
+    </div>
+  </div>
+
+  @if (submitError) {
+    <p-message severity="error" [text]="submitError" />
+  }
+
+  <div class="ingredients-section" formArrayName="ingredients">
+    <div class="ingredients-header">
+      <label>Ingredients</label>
+      <button
+        pButton
+        type="button"
+        label="Add ingredient"
+        icon="pi pi-plus"
+        size="small"
+        (click)="addIngredient()"
+      ></button>
+    </div>
+
+    @for (ing of ingredients.controls; track ing; let i = $index) {
+      <div class="ingredient-row" [formGroupName]="i">
+        <input pInputText placeholder="Name" formControlName="name" />
+        <input pInputText placeholder="Amount" formControlName="amount" />
+        <input pInputText placeholder="Unit" formControlName="unit" />
+        <button
+          pButton
+          type="button"
+          icon="pi pi-trash"
+          severity="danger"
+          size="small"
+          (click)="removeIngredient(i)"
+        ></button>
+      </div>
+    } @empty {
+      <p class="hint">No ingredients yet — add some above.</p>
+    }
+  </div>
+
+  <div class="actions">
+    <p-button
+      type="submit"
+      label="Save recipe"
+      [disabled]="submitting"
+      [loading]="submitting"
+    />
+  </div>
+</form>

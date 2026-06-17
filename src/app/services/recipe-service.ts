@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Recipe, StrapiResponse } from '../models/recipe.model';
+import { Recipe, RecipeCreatePayload, StrapiResponse } from '../models/recipe.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +24,7 @@ export class RecipeService {
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
 
+  /* Loading all recipes from the Strapi API */
   async loadRecipes() {
     this._loading.set(true);
     this._error.set(null);
@@ -35,6 +36,26 @@ export class RecipeService {
       this._recipes.set(response.data);
     } catch (error) {
       this._error.set('Failed to load recipes');
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  /* Pushing a new recipe to the Strapi API */
+  async createRecipe(recipe: RecipeCreatePayload): Promise<Recipe> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<StrapiResponse<Recipe>>(this.baseUrl, { data: recipe }),
+      );
+      const created = response.data;
+
+      // prepend to the shared signal so the list updates instantly
+      this._recipes.update((current) => [created, ...current]);
+
+      return created;
     } finally {
       this._loading.set(false);
     }
